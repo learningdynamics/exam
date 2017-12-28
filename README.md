@@ -1,6 +1,10 @@
 # Github
 
 To clone the repository locally:
+$ mkdir ld ; cd ld
+$ git clone https://github.com/learningdynamics/exam.git .
+
+or (if you send me a public ssh key)
 
 $ git clone git@github.com:learningdynamics/exam.git .
 
