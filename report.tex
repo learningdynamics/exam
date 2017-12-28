@@ -1,0 +1,80 @@
+\documentclass[letterpaper]{article}
+\usepackage{natbib,alifexi}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{mathtools}
+
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+
+\title{Local Coordination in Online Distributed Constraint Optimization Problems \citep{Brys2012} \\ \large Learning dynamics (INFO-F-409)}
+\author{Leon Babin$^1$, Yanfang Guo$^2$, Anthony Piron$^1$ \and Wenjia Wang$^2$ \\
+\mbox{}\\
+$^1$Master in Bio-informatics and Modelling, Université Libre de Bruxelles \\
+$^2$Vrije Universiteit Brussel}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  
+\end{abstract}
+
+\section{Introduction}
+
+
+\section{LJAL}
+
+\begin{algorithm}[tph]
+  \caption{The LJAL algorithm. Update Qs. Return reward.}
+  \label{alg:ljal}
+  \begin{algorithmic}
+    \Function{LJAL\_One\_Step}{agents, graph}
+    \ForAll{agent in agents}
+    \State $evs\gets EVs(graph.nodes[agent], agent)$
+    \State $actions[agent]\gets BoltzmannAction(evs)$
+    \EndFor
+
+    \State $R\gets Reward(actions)$
+
+    \ForAll{node in graph.nodes}
+    \State $sel.actions\gets actions[node.successors]$
+    \State $node.Q[sel.actions] \mathrel{+}\gets$
+    \State \hspace{1cm}$\alpha * (R - node.Q[sel.actions])$
+    \State $node.N[sel.actions]\mathrel{+}\gets 1$
+    \EndFor
+    \Return $R$
+    \EndFunction
+    \State
+    \ForAll{t in MaxTime}
+    \State \Call{LJAL\_One\_Step}{agents, graph}
+    \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+The LJAL algorithm is provided at \ref{alg:ljal}. A graph is a list of nodes. Each node contains a list of successors, a $Q$ matrice (size $\bigtimes_{s \in successors} a_s$ where $a_s$ is the number of actions for the successor $s$) and $N$ a matrix (same size) for counting the number of time an action is chosen. 
+
+\section{Learning coordination graphs}
+
+\begin{algorithm}[tph]
+  \caption{Coordination graph learning algorithm.}
+  \label{alg:LCG}
+  \begin{algorithmic}
+    \Function{LCG\_One\_Step}{agents}
+    
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+
+
+\section{Acknowledgements}
+
+\footnotesize
+\bibliographystyle{apalike}
+\bibliography{bib}
+
+
+\end{document}
