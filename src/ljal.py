@@ -43,9 +43,10 @@ class LJAL(object):
         Compute the y axis of Q and N from the other agents actions
         """
         sel_actions = actions[self.graph.successors(agent)]
+        if  len(sel_actions) == 0:
+            return 0
         exponents = np.full(len(sel_actions), self.n_actions)
-        if len(exponents > 0):
-            exponents[0] = 1
+        exponents[0] = 1
         exponents = np.cumprod(exponents)
         return np.sum(sel_actions * exponents)
         
@@ -105,6 +106,7 @@ class TestLJALMethods(unittest.TestCase):
 
     def test_one_step(self):
         g = Graph(5)
+        g.add_arc(1,2)
         l = LJAL(g)
         l.one_step()
         ## print(l)
