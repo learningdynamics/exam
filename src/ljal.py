@@ -31,6 +31,9 @@ class LJAL(object):
                     for n in graph.nodes ]
         self.Ns = [ np.zeros((n_actions, n_actions**len(n)), dtype=np.int)
                     for n in graph.nodes ]
+        ## Last values
+        self.R = 0
+        self.actions = np.zeros(self.n_agents)
 
     def reward(self, actions):
         return 1
@@ -47,14 +50,14 @@ class LJAL(object):
         return np.sum(sel_actions * exponents)
         
     def one_step(self):
-        actions = np.array([ BoltzmannAction(EVs(self.Qs[agent], self.Ns[agent]))
-                             for agent in range(0, self.n_agents) ])
+        self.actions = np.array([ BoltzmannAction(EVs(self.Qs[agent], self.Ns[agent]))
+                                  for agent in range(0, self.n_agents) ])
 
-        self.R = self.reward(actions)
+        self.R = self.reward(self.actions)
 
         for agent in range(0, self.n_agents):
-            x = actions[agent]
-            y = self._y(agent, actions)
+            x = self.actions[agent]
+            y = self._y(agent, self.actions)
             self.Qs[agent][x, y] += self.alpha * (self.R - self.Qs[agent][x, y])
             self.Ns[agent][x, y] += 1
         
@@ -106,7 +109,7 @@ class TestLJALMethods(unittest.TestCase):
         l.one_step()
         ## print(l)
         l.one_step()
-        ##print(l)
+        print(l)
         
 
 if __name__ == "__main__":
