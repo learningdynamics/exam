@@ -17,25 +17,25 @@ class LJALPart1(LJAL):
 
     def __init__(self, graph):
         super(LJALPart1, self).__init__(graph=graph, n_actions = 4)
-        self.rewards = np.reshape(np.random.normal(0,50,self.n_actions**self.n_agents),
-                                  [self.n_actions for i in self.n_agents])
+        # self.rewards = np.
 
     def temperature(self):
         ## As described p. 5
         return 1000 * 0.94**self.step
 
     def reward(self, actions):
-        return self.rewards[tuple(actions)]
+        # use self.rewards[actions]
+        temp = np.random.uniform(0, self.n_agents * 10, self.n_actions ** self.n_agents)
+        shape = [self.n_actions for i in range(self.n_agents)]
+        reward = temp.reshape(shape)
+        return reward
 
         
 class LJALNPart1(LJALPart1):
 
     def __init__(self, n_out = 0):
         """
-        n_out: number of out edges. 
-               n_out: 0 is IL 
-                    : 2 is LJAL-2
-                    : 3 is LJAL-3
+        n_out: number of out edges. n_out = 0 is IL. n_out = 3 is LJAL-3
         """
         graph = Graph(5)
         for n in range(0,5):
@@ -43,7 +43,6 @@ class LJALNPart1(LJALPart1):
                 graph.add_arc(n, numpy.random.randint(0, 5))
         super(LJAL2Part1, self).__init__(graph=graph)
 
-        
 class JALPart1(LJALPart1):
 
     def __init__(self):
