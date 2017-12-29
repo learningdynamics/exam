@@ -32,7 +32,10 @@ class LJALNPart1(LJALPart1):
 
     def __init__(self, n_out = 0):
         """
-        n_out: number of out edges. n_out = 0 is IL. n_out = 3 is LJAL-3
+        n_out: number of out edges. 
+               n_out: 0 is IL 
+                    : 2 is LJAL-2
+                    : 3 is LJAL-3
         """
         graph = Graph(5)
         for n in range(0,5):
