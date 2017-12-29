@@ -17,15 +17,15 @@ class LJALPart1(LJAL):
 
     def __init__(self, graph):
         super(LJALPart1, self).__init__(graph=graph, n_actions = 4)
-        # self.rewards = np.
+        self.rewards = np.reshape(np.random.normal(0,50,self.n_actions**self.n_agents),
+                                  [self.n_actions for i in self.n_agents])
 
     def temperature(self):
         ## As described p. 5
         return 1000 * 0.94**self.step
 
     def reward(self, actions):
-        # use self.rewards[actions]
-        return 1
+        return self.rewards[tuple(actions)]
 
         
 class LJALNPart1(LJALPart1):
