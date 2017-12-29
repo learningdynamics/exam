@@ -21,19 +21,15 @@ class LJALPart1(LJAL):
         # use self.reward[actions]
         return 1
 
-    
-
-class ILPart1(LJALPart1):
-
-    def __init__(self):
-        graph = Graph(5)
-        super(ILPart1, self).__init__(graph=graph)
-
         
-class LJAL2Part1(LJALPart1):
+class LJALNPart1(LJALPart1):
 
-    def __init__(self):
+    def __init__(self, n_out = 0):
+        """
+        n_out: number of out edges. n_out = 0 is IL. n_out = 2 is LJAL-2
+        """
         graph = Graph(5)
         for n in range(0,5):
-            graph.add(n, numpy.random.randint(0, 5))
+            for i in range(0, n_out):
+                graph.add(n, numpy.random.randint(0, 5))
         super(LJAL2Part1, self).__init__(graph=graph)
