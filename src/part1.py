@@ -24,7 +24,7 @@ class LJALPart1(LJAL):
         return 1000 * 0.94**self.step
 
     def reward(self, actions):
-        # use self.reward[actions]
+        # use self.rewards[actions]
         return 1
 
         
