@@ -38,6 +38,9 @@ class LJAL(object):
     def reward(self, actions):
         return 1
 
+    def temperature(self):
+        return 1
+
     def _y(self, agent, actions):
         """
         Compute the y axis of Q and N from the other agents actions
@@ -51,7 +54,8 @@ class LJAL(object):
         return np.sum(sel_actions * exponents)
         
     def one_step(self):
-        self.actions = np.array([ BoltzmannAction(EVs(self.Qs[agent], self.Ns[agent]))
+        self.actions = np.array([ BoltzmannAction(EVs(self.Qs[agent], self.Ns[agent]),
+                                                  temp = self.temperature())
                                   for agent in range(0, self.n_agents) ])
 
         self.R = self.reward(self.actions)
@@ -105,13 +109,14 @@ class TestLJALMethods(unittest.TestCase):
         self.assertTrue(np.shape(l.Ns[1]) == (4,4**2))
 
     def test_one_step(self):
+        
         g = Graph(5)
         g.add_arc(1,2)
         l = LJAL(g)
         l.one_step()
-        ## print(l)
         l.one_step()
-        print(l)
+        s = sum([ np.sum(N) for N in l.Ns])
+        self.assertEqual(s, 5*2)
         
 
 if __name__ == "__main__":
