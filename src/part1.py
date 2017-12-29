@@ -14,6 +14,7 @@ class LJALPart1(LJAL):
         # self.rewards = np.
 
     def temperature(self):
+        ## As described p. 5
         return 1000 * 0.94**self.step
 
     def reward(self, actions):
