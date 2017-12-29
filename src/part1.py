@@ -6,6 +6,12 @@ import numpy as np
 from graph import Graph
 from ljal import LJAL
 
+###
+# temperature = 1000 * 0.97^play
+# IL 
+# Randomly generated CG out edge degrees : 2 and 3
+# JAL
+
 
 class LJALPart1(LJAL):
 
