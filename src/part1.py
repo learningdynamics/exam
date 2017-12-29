@@ -40,6 +40,7 @@ class LJALNPart1(LJALPart1):
                 graph.add_arc(n, numpy.random.randint(0, 5))
         super(LJAL2Part1, self).__init__(graph=graph)
 
+        
 class JALPart1(LJALPart1):
 
     def __init__(self):
