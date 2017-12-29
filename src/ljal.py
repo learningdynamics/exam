@@ -44,6 +44,9 @@ class LJAL(object):
     def _y(self, agent, actions):
         """
         Compute the y axis of Q and N from the other agents actions
+
+        Not a very clean method but works well for computing EVs(). Any
+        Other idea?
         """
         sel_actions = actions[self.graph.successors(agent)]
         if  len(sel_actions) == 0:
