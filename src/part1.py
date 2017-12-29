@@ -25,7 +25,10 @@ class LJALPart1(LJAL):
 
     def reward(self, actions):
         # use self.rewards[actions]
-        return 1
+        temp = np.random.uniform(0, self.n_agents * 10, self.n_actions ** self.n_agents)
+        shape = [self.n_actions for i in range(self.n_agents)]
+        reward = temp.reshape(shape)
+        return reward
 
         
 class LJALNPart1(LJALPart1):
