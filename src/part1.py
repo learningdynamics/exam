@@ -31,5 +31,5 @@ class LJALNPart1(LJALPart1):
         graph = Graph(5)
         for n in range(0,5):
             for i in range(0, n_out):
-                graph.add(n, numpy.random.randint(0, 5))
+                graph.add_arc(n, numpy.random.randint(0, 5))
         super(LJAL2Part1, self).__init__(graph=graph)
