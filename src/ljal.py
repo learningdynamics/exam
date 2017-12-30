@@ -3,6 +3,7 @@
 import unittest
 import numpy as np
 
+
 from graph import *
 
 def BoltzmannAction(evs, temp=1):
@@ -95,6 +96,7 @@ class TestLJALMethods(unittest.TestCase):
         half = np.mean([BoltzmannAction([10,10]) for i in range(0,2000)])
         self.assertTrue(0.45 < half and half < 0.55)
 
+
     def test_EVs(self):
         Q = np.array([[ 1.,  2.], [ 0.,  0.]])
         N = np.array([[1, 1], [0, 0]])
@@ -118,10 +120,16 @@ class TestLJALMethods(unittest.TestCase):
         l = LJAL(g)
         l.one_step()
         l.one_step()
+<<<<<<< Updated upstream
         s = sum([ np.sum(N) for N in l.Ns])
         self.assertEqual(s, 5*2)
+=======
+        print(l)
+
+>>>>>>> Stashed changes
         
 
 if __name__ == "__main__":
     unittest.main()
+
   
