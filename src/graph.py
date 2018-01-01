@@ -1,24 +1,45 @@
 #! /usr/bin/python3
 
 import unittest
+import numpy as np
 
 class Graph(object):
 
     def __init__(self, n_nodes):
+        self.n_nodes = n_nodes
         self.nodes = [{} for i in range(0,n_nodes)]
 
     def add_arc(self, src, dst, weigth = 1):
-        if (src != dst):
+        if (dst < self.n_nodes and src != dst):
             self.nodes[src][dst] = weigth
 
     def successors(self, node):
         return sorted(self.nodes[node].keys())
 
 
+class RandomGraph(Graph):
+
+    def __init__(self, n_nodes, n_out_edges = 0):
+        super(RandomGraph,self).__init__(n_nodes)
+        for n in range(0, n_nodes):
+            for d in np.random.choice([x for x in range(0,n_nodes) if x != n],
+                                      n_out_edges, replace=False):
+                self.add_arc(n, d)
+
+class FullGraph(Graph):
+
+    def __init__(self, n_nodes):
+        super(FullGraph,self).__init__(n_nodes)
+        for n1 in range(0,n_nodes):
+            for n2 in range(0,n_nodes):
+                if n1 != n2:
+                    self.add_arc(n1, n2)
+
+
+                    
 ####################
 ## TESTING
 class TestGraphMethods(unittest.TestCase):
-
 
     def test_Graph(self):
         g = Graph(10)
@@ -40,8 +61,16 @@ class TestGraphMethods(unittest.TestCase):
         g.add_arc(1,5)
         self.assertEqual([2,5], g.successors(1))
 
+    def test_random_graph(self):
+        g = RandomGraph(10, 2)
+        s = sum([len(n) for n in g.nodes])
+        self.assertEqual(s, 20)
+
+    def test_full_graph(self):
+        g = FullGraph(10)
+        s = sum([len(n) for n in g.nodes])
+        self.assertEqual(s, 90)
+
+
 if __name__ == "__main__":
     unittest.main()
-
-#unittest.main()
-

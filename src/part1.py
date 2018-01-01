@@ -38,19 +38,12 @@ class LJALNPart1(LJALPart1):
                     : 3 is LJAL-3
 
         """
-        graph = Graph(5)
-        for n in range(0,5):
-            for i in range(0, n_out):
-                graph.add_arc(n, numpy.random.randint(0, 5))
+        graph = RandomGraph(5, n_out)
         super(LJAL2Part1, self).__init__(graph=graph)
 
         
 class JALPart1(LJALPart1):
 
     def __init__(self):
-        graph = Graph(5)
-        for n1 in range(0,5):
-            for n2 in range(0,5):
-                if n1 != n2:
-                    graph.add_arc(n1, n2)
+        graph = FullGraph(5)
         super(JAL2Part1, self).__init__(graph=graph)

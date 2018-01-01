@@ -25,15 +25,20 @@ class LJAL(object):
         self.alpha = alpha
         self.n_agents = len(graph.nodes)
         self.graph = graph
-        self.step = 0
-        ## 2D matrix action x action^#successors(agent)
-        self.Qs = [ np.zeros((n_actions, n_actions**len(n)))
-                    for n in graph.nodes ]
-        self.Ns = [ np.zeros((n_actions, n_actions**len(n)), dtype=np.int)
-                    for n in graph.nodes ]
+
+        self.reinit()
         ## Last values
         self.R = 0
         self.actions = np.zeros(self.n_agents)
+
+    def reinit(self):
+        self.step = 0
+        ## 2D matrix action x action^#successors(agent)
+        self.Qs = [ np.zeros((self.n_actions, self.n_actions**len(n)))
+                    for n in self.graph.nodes ]
+        self.Ns = [ np.zeros((self.n_actions, self.n_actions**len(n)), dtype=np.int)
+                    for n in self.graph.nodes ]
+
 
     def reward(self, actions):
         return 1
@@ -71,6 +76,17 @@ class LJAL(object):
         
         self.step += 1
 
+    def n_steps(self, n, n_samples=1):
+        result = np.zeros(n)
+        
+        for replicat in range(1, n_samples+1):
+            self.reinit()
+            for step in range(0, n):
+                self.one_step()
+                result[step] = (replicat-1)/replicat * result[step] + self.R / replicat
+
+        return result
+        
     def __str__(self):
         str = """
 n_agents = {}
@@ -120,7 +136,15 @@ class TestLJALMethods(unittest.TestCase):
         l.one_step()
         s = sum([ np.sum(N) for N in l.Ns])
         self.assertEqual(s, 5*2)
-        print(l)
+        ## print(l)
+
+    def test_n_steps(self):
+        
+        g = Graph(5)
+        l = LJAL(g)
+        R = l.n_steps(30, 10)
+        self.assertEqual(len(R), 30)
+        self.assertTrue(all([x == 1.0 for x in R]))
 
 
 
