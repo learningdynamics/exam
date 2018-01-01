@@ -17,17 +17,34 @@ from ljal import LJAL, AverageR
 # Randomly generated CG out edge degrees: 2 and 3
 # JAL
 
-rewards = np.reshape(np.random.normal(0,50,4**5),
-                     [4 for i in range(0, 5)])
+class Rewards(object):
+    vec = np.random.normal(0,50,4**5)
+    
+    def __init__(self):
+        pass
+
+    def __len__(self):
+        return len(Rewards.vec)
+
+    def __getitem__(self, key):
+        if isinstance( key, slice ) :
+            return [self[ii] for ii in range(*key.indices(len(self)))]
+        elif isinstance( key, int ):
+            l = len(self)
+            if key >= l:
+                Rewards.vec.extend(np.random.normal(0,50,key-l+1+100))
+
+        return Rewards.vec[key]
+
 
 class LJALPart1(LJAL):
 
     def __init__(self, graph, alpha=0.1):
         super(LJALPart1, self).__init__(graph=graph, n_actions = 4, alpha = alpha)
         # Need global reward
-        self.rewards = rewards
-        # self.rewards = np.reshape(np.random.normal(0,50,self.n_actions**self.n_agents),
-        #                           [self.n_actions for i in range(0, self.n_agents)])
+        r = Rewards()
+        self.rewards = np.reshape(r[0:self.n_actions**self.n_agents],
+                                  [self.n_actions for i in range(0, self.n_agents)])
 
     def temperature(self):
         ## As described p. 5
