@@ -2,15 +2,17 @@
 
 import unittest
 import numpy as np
-from joblib import Parallel, delayed
-from multiprocessing import Pool
 
 from graph import *
 
 def BoltzmannAction(evs, temp=1):
+    # Prevent overflow
+    temp = max(temp, 0.01)
     cs = np.cumsum(np.exp(np.array(evs)/temp))
-    rd = np.random.uniform(0,cs[-1])
-    return len(cs) - np.sum(rd <= cs)
+    cs = cs / cs[-1]
+    rd = np.random.uniform()
+    l = len(cs)
+    return min(l - np.sum(rd <= cs), l-1)
 
 def EVs(Q, N):
     ## np.average(Q, axis=1, weigths=N) but handling the case where
