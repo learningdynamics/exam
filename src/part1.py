@@ -50,8 +50,19 @@ class JALPart1(LJALPart1):
         super(JALPart1, self).__init__(graph=graph)
 
 
+steps = 200
+index = [i for i in range(1, steps+1)]
+IL = AverageR(20, lambda:LJALNPart1().n_steps(steps))
+LJAL_2 = AverageR(20, lambda:LJALNPart1(n_out = 2).n_steps(steps))
+LJAL_3 = AverageR(20, lambda:LJALNPart1(n_out = 3).n_steps(steps))
+JAL = AverageR(20, lambda:JALPart1().n_steps(steps))
 
-IL = AverageR(200, lambda:LJALNPart1().n_steps(200))
-plt.plot(IL)
+print(len(index))
+print(len(IL))
+print(len(LJAL_2))
+print(len(LJAL_3))
+print(len(JAL))
+
+plt.plot(index, IL, 'r', index, LJAL_2, 'b', index, LJAL_3, 'g', index, JAL, 'y')
 plt.ylabel('R')
 plt.show()

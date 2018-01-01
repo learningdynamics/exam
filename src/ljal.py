@@ -2,6 +2,7 @@
 
 import unittest
 import numpy as np
+from joblib import Parallel, delayed
 from multiprocessing import Pool
 
 from graph import *
@@ -101,6 +102,7 @@ def AverageR(n, getR):
     for i in range(2,n+1):
         resR += getR()
     return resR / n
+    
         
     
 ####################
