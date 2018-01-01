@@ -2,14 +2,9 @@
 
 import unittest
 import numpy as np
-import matplotlib.pyplot as plt
 
-from timeit import default_timer as timer
-from multiprocessing import Pool
-import sys
-
-from graph import (Graph, RandomGraph, FullGraph)
-from ljal import LJAL, AverageR
+from graph import Graph
+from ljal import LJAL
 
 ###
 # temperature = 1000 * 0.97^play
@@ -19,7 +14,7 @@ from ljal import LJAL, AverageR
 
 class Rewards(object):
     vec = np.random.normal(0,50,4**10)
-    
+
     def __init__(self):
         pass
 
