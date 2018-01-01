@@ -18,7 +18,7 @@ class LJALPart1(LJAL):
     def __init__(self, graph):
         super(LJALPart1, self).__init__(graph=graph, n_actions = 4)
         self.rewards = np.reshape(np.random.normal(0,50,self.n_actions**self.n_agents),
-                                  [self.n_actions for i in self.n_agents])
+                                  [self.n_actions for i in range(self.n_agents)])
 
     def temperature(self):
         ## As described p. 5
@@ -41,8 +41,8 @@ class LJALNPart1(LJALPart1):
         graph = Graph(5)
         for n in range(0,5):
             for i in range(0, n_out):
-                graph.add_arc(n, numpy.random.randint(0, 5))
-        super(LJAL2Part1, self).__init__(graph=graph)
+                graph.add_arc(n, np.random.randint(0, 5))
+        super(LJALNPart1, self).__init__(graph=graph)
 
         
 class JALPart1(LJALPart1):
@@ -53,4 +53,4 @@ class JALPart1(LJALPart1):
             for n2 in range(0,5):
                 if n1 != n2:
                     graph.add_arc(n1, n2)
-        super(JAL2Part1, self).__init__(graph=graph)
+        super(LJALPart1, self).__init__(graph=graph)
