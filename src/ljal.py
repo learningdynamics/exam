@@ -120,16 +120,18 @@ class TestLJALMethods(unittest.TestCase):
         l = LJAL(g)
         l.one_step()
         l.one_step()
-<<<<<<< Updated upstream
         s = sum([ np.sum(N) for N in l.Ns])
         self.assertEqual(s, 5*2)
-=======
         print(l)
 
->>>>>>> Stashed changes
-        
+
+
+
+
 
 if __name__ == "__main__":
     unittest.main()
 
-  
+
+
+
