@@ -2,6 +2,7 @@
 
 import unittest
 import numpy as np
+from multiprocessing import Pool
 
 from graph import *
 
@@ -26,19 +27,17 @@ class LJAL(object):
         self.n_agents = len(graph.nodes)
         self.graph = graph
 
-        self.reinit()
+
+        self.step = 0
+        ## 2D matrix action x action^#successors(agent)
+        self.Qs = [ np.zeros((n_actions, n_actions**len(n)))
+                    for n in graph.nodes ]
+        self.Ns = [ np.zeros((n_actions, n_actions**len(n)), dtype=np.int)
+                    for n in graph.nodes ]
+
         ## Last values
         self.R = 0
         self.actions = np.zeros(self.n_agents)
-
-    def reinit(self):
-        self.step = 0
-        ## 2D matrix action x action^#successors(agent)
-        self.Qs = [ np.zeros((self.n_actions, self.n_actions**len(n)))
-                    for n in self.graph.nodes ]
-        self.Ns = [ np.zeros((self.n_actions, self.n_actions**len(n)), dtype=np.int)
-                    for n in self.graph.nodes ]
-
 
     def reward(self, actions):
         return 1
@@ -76,14 +75,11 @@ class LJAL(object):
         
         self.step += 1
 
-    def n_steps(self, n, n_samples=1):
-        result = np.zeros(n)
-        
-        for replicat in range(1, n_samples+1):
-            self.reinit()
-            for step in range(0, n):
-                self.one_step()
-                result[step] = (replicat-1)/replicat * result[step] + self.R / replicat
+    def n_steps(self, n):
+        result = np.empty(n)
+        for step in range(0, n):
+            self.one_step()
+            result[step] = self.R
 
         return result
         
@@ -99,6 +95,14 @@ Ns = {}
                    self.Qs, self.Ns)
         return str
 
+
+def AverageR(n, getR):
+    resR = getR()
+    for i in range(2,n+1):
+        resR += getR()
+    return resR / n
+        
+    
 ####################
 ## TESTING
 class TestLJALMethods(unittest.TestCase):
@@ -142,13 +146,9 @@ class TestLJALMethods(unittest.TestCase):
         
         g = Graph(5)
         l = LJAL(g)
-        R = l.n_steps(30, 10)
+        R = l.n_steps(30)
         self.assertEqual(len(R), 30)
         self.assertTrue(all([x == 1.0 for x in R]))
-
-
-
-
 
 
 if __name__ == "__main__":

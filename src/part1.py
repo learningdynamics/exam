@@ -2,9 +2,10 @@
 
 import unittest
 import numpy as np
+import matplotlib.pyplot as plt
 
-from graph import Graph
-from ljal import LJAL
+from graph import (Graph, RandomGraph, FullGraph)
+from ljal import LJAL, AverageR
 
 ###
 # temperature = 1000 * 0.97^play
@@ -18,7 +19,7 @@ class LJALPart1(LJAL):
     def __init__(self, graph):
         super(LJALPart1, self).__init__(graph=graph, n_actions = 4)
         self.rewards = np.reshape(np.random.normal(0,50,self.n_actions**self.n_agents),
-                                  [self.n_actions for i in self.n_agents])
+                                  [self.n_actions for i in range(0, self.n_agents)])
 
     def temperature(self):
         ## As described p. 5
@@ -39,11 +40,18 @@ class LJALNPart1(LJALPart1):
 
         """
         graph = RandomGraph(5, n_out)
-        super(LJAL2Part1, self).__init__(graph=graph)
+        super(LJALNPart1, self).__init__(graph=graph)
 
         
 class JALPart1(LJALPart1):
 
     def __init__(self):
         graph = FullGraph(5)
-        super(JAL2Part1, self).__init__(graph=graph)
+        super(JALPart1, self).__init__(graph=graph)
+
+
+
+IL = AverageR(200, lambda:LJALNPart1().n_steps(200))
+plt.plot(IL)
+plt.ylabel('R')
+plt.show()
