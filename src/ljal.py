@@ -120,8 +120,13 @@ class TestLJALMethods(unittest.TestCase):
         l.one_step()
         s = sum([ np.sum(N) for N in l.Ns])
         self.assertEqual(s, 5*2)
-        
+        print(l)
+
+
+
+
+
 
 if __name__ == "__main__":
     unittest.main()
-  
+

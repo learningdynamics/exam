@@ -36,6 +36,7 @@ class LJALNPart1(LJALPart1):
                n_out: 0 is IL 
                     : 2 is LJAL-2
                     : 3 is LJAL-3
+
         """
         graph = Graph(5)
         for n in range(0,5):

@@ -19,11 +19,13 @@ class Graph(object):
 ## TESTING
 class TestGraphMethods(unittest.TestCase):
 
+
     def test_Graph(self):
         g = Graph(10)
         self.assertTrue(isinstance(g.nodes[0],dict))
 
     def test_add_arc(self):
+        print("arc")
         g = Graph(10)
         g.add_arc(1,1)
         g.add_arc(1,2)
@@ -32,7 +34,7 @@ class TestGraphMethods(unittest.TestCase):
         self.assertTrue(5 in g.nodes[1])
         self.assertFalse(1 in g.nodes[1])
 
-    def test_add_arc(self):
+    def test_add_arc1(self):
         g = Graph(10)
         g.add_arc(1,2)
         g.add_arc(1,5)
@@ -41,4 +43,5 @@ class TestGraphMethods(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
+#unittest.main()
 
