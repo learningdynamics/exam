@@ -24,7 +24,7 @@ def EVs(Q, N):
 
 class LJAL(object):
 
-    def __init__(self, graph, n_actions = 4, alpha = 0.1):
+    def __init__(self, graph, n_actions = 4, alpha = 0.1, optimistic=0):
         self.n_actions = n_actions
         self.alpha = alpha
         self.n_agents = len(graph.nodes)
@@ -33,7 +33,7 @@ class LJAL(object):
 
         self.step = 0
         ## 2D matrix action x action^#successors(agent)
-        self.Qs = [ np.zeros((n_actions, n_actions**len(n)))
+        self.Qs = [ np.full((n_actions, n_actions**len(n)), optimistic)
                     for n in graph.nodes ]
         self.Ns = [ np.zeros((n_actions, n_actions**len(n)), dtype=np.int)
                     for n in graph.nodes ]
