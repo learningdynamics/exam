@@ -2,6 +2,8 @@
 
 import unittest
 import numpy as np
+import multiprocessing as mp
+from parmap import parmap
 
 from graph import *
 
@@ -95,11 +97,16 @@ Cs = {}
         return str
 
 
+
 def AverageR(n, getR):
-    resR = getR()
-    for i in range(2,n+1):
-        resR += getR()
-    return resR / n
+    def worker(i):
+        return getR()
+    res = parmap(worker, range(0,n))
+    return np.average(res, axis=0)
+    #resR = getR()
+    #for i in range(2,n+1):
+    #    resR += getR()
+    #return resR / n
     
         
     
@@ -148,6 +155,12 @@ class TestLJALMethods(unittest.TestCase):
         self.assertTrue(all([x == 1.0 for x in R]))
         #print(l)
 
+    def test_AverageR(self):
+        res = AverageR(5, lambda: np.array([1,2,3]))
+        # print(res)
+        self.assertEqual(res[0], 1.0)
+        self.assertEqual(res[1], 2.0)
+        self.assertEqual(res[2], 3.0)
 
 if __name__ == "__main__":
     unittest.main()
