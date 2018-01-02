@@ -46,7 +46,7 @@ class TestGraphMethods(unittest.TestCase):
         self.assertTrue(isinstance(g.nodes[0],dict))
 
     def test_add_arc(self):
-        print("arc")
+        #print("arc")
         g = Graph(10)
         g.add_arc(1,1)
         g.add_arc(1,2)
