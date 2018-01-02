@@ -7,24 +7,16 @@ from graph import *
 
 def BoltzmannAction(evs, temp=1):
     # Prevent overflow
-    # temp = max(temp, 0.001)
+    temp = max(temp, 0.01)
     cs = np.cumsum(np.exp(np.array(evs)/temp))
     cs = cs / cs[-1]
     rd = np.random.uniform()
     l = len(cs)
     return min(l - np.sum(rd <= cs), l-1)
 
-def EVs(Q, N):
-    ## np.average(Q, axis=1, weigths=N) but handling the case where
-    ## all N are zeroes
-    sum_n = np.sum(N,axis=1)
-    sum_n[sum_n == 0] = 1
-    return np.sum(Q, axis=1) / sum_n
-        
-
 class LJAL(object):
 
-    def __init__(self, graph, n_actions = 4, alpha = 0.1, optimistic=0):
+    def __init__(self, graph, n_actions = 4, alpha = 0.1, optimistic=0.0):
         self.n_actions = n_actions
         self.alpha = alpha
         self.n_agents = len(graph.nodes)
@@ -32,10 +24,10 @@ class LJAL(object):
 
 
         self.step = 0
-        ## 2D matrix action x action^#successors(agent)
-        self.Qs = [ np.full((n_actions, n_actions**len(n)), optimistic)
+        ## 
+        self.Qs = [ np.full([n_actions for i in range(0,len(n)+1)], optimistic)
                     for n in graph.nodes ]
-        self.Ns = [ np.zeros((n_actions, n_actions**len(n)), dtype=np.int)
+        self.Cs = [ np.zeros((len(n), n_actions), dtype=np.int)
                     for n in graph.nodes ]
 
         ## Last values
@@ -43,38 +35,42 @@ class LJAL(object):
         self.actions = np.zeros(self.n_agents)
 
     def reward(self, actions):
-        return 1
+        return 1.0
 
     def temperature(self):
-        return 1
+        return 1.0
+    
+    def EVs(self, agent):
+        EV = np.zeros(self.n_actions)
+        Sums = np.sum(self.Cs[agent], axis=1)
+        Sums[Sums == 0] = 1
+        Fs = self.Cs[agent] / Sums[:,None]
+        
+        it = np.nditer(self.Qs[agent], flags=['multi_index'])
+        while not it.finished:
+            action = it.multi_index[0]
+            actions = it.multi_index[1:]
+            
+            prob = np.prod([Fs[i, a]  for i,a in enumerate(actions) ])
+            EV[action] +=  it[0] * prob
+            it.iternext()
 
-    def _y(self, agent, actions):
-        """
-        Compute the y axis of Q and N from the other agents actions
-
-        Not a very clean method but works well for computing EVs(). Any
-        Other idea?
-        """
-        sel_actions = actions[self.graph.successors(agent)]
-        if  len(sel_actions) == 0:
-            return 0
-        exponents = np.full(len(sel_actions), self.n_actions)
-        exponents[0] = 1
-        exponents = np.cumprod(exponents)
-        return np.sum(sel_actions * exponents)
+        return EV
         
     def one_step(self):
-        self.actions = np.array([ BoltzmannAction(EVs(self.Qs[agent], self.Ns[agent]),
-                                                  temp = self.temperature())
+        self.actions = np.array([ BoltzmannAction(self.EVs(agent), temp = self.temperature())
                                   for agent in range(0, self.n_agents) ])
-
+                                                  
         self.R = self.reward(self.actions)
 
         for agent in range(0, self.n_agents):
-            x = self.actions[agent]
-            y = self._y(agent, self.actions)
-            self.Qs[agent][x, y] += self.alpha * (self.R - self.Qs[agent][x, y])
-            self.Ns[agent][x, y] += 1
+            selected_actions = [agent]
+            selected_actions.extend(self.graph.successors(agent))
+            selected_actions = tuple(self.actions[selected_actions])
+            self.Qs[agent][selected_actions] += self.alpha * (self.R - self.Qs[agent][selected_actions])
+            
+            for i, s in enumerate(self.graph.successors(agent)):
+                self.Cs[agent][i, self.actions[s]] += 1
         
         self.step += 1
 
@@ -93,9 +89,9 @@ n_actions = {}
 alpha = {}
 step = {}
 Qs = {}
-Ns = {}
+Cs = {}
         """.format(self.n_agents, self.n_actions, self.alpha, self.step,
-                   self.Qs, self.Ns)
+                   self.Qs, self.Cs)
         return str
 
 
@@ -144,7 +140,7 @@ class TestLJALMethods(unittest.TestCase):
         l.one_step()
         s = sum([ np.sum(N) for N in l.Ns])
         self.assertEqual(s, 5*2)
-        ## print(l)
+        print(l)
 
     def test_n_steps(self):
         
@@ -153,6 +149,7 @@ class TestLJALMethods(unittest.TestCase):
         R = l.n_steps(30)
         self.assertEqual(len(R), 30)
         self.assertTrue(all([x == 1.0 for x in R]))
+        print(l)
 
 
 if __name__ == "__main__":
