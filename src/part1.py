@@ -61,22 +61,26 @@ if len(sys.argv) > 1:
 steps = 200
 index = [i for i in range(1, steps+1)]
 
+print("Running IL")
 start = timer()
 IL = AverageR(n_samples, lambda:LJALPart1(graph=Graph(5)).n_steps(steps))
 end = timer()
 IL_delta = end - start
 
+print("Running LJAL-2")
 start = timer()
 LJAL_2 = AverageR(n_samples, lambda:LJALPart1(graph=RandomGraph(5, 2)).n_steps(steps))
 end = timer()
 LJAL_2_delta = end - start
 
 
+print("Running LJAL-3")
 start = timer()
 LJAL_3 = AverageR(n_samples, lambda:LJALPart1(graph=RandomGraph(5, 3)).n_steps(steps))
 end = timer()
 LJAL_3_delta = end - start
 
+print("Running JAL")
 start = timer()
 JAL = AverageR(n_samples, lambda:LJALPart1(graph=FullGraph(5)).n_steps(steps))
 end = timer()
@@ -87,6 +91,7 @@ timing = np.array([IL_delta,  LJAL_2_delta, LJAL_3_delta, JAL_delta]) / JAL_delt
 print( timing )
 
 
+print("Plotting")
 plt.ylim(-10, 120)
 plt.plot(index, IL, 'r', index, LJAL_2, 'b', index, LJAL_3, 'g', index, JAL, 'y')
 plt.ylabel('R')
