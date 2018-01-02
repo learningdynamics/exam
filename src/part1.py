@@ -39,7 +39,7 @@ class Rewards(object):
 
 class LJALPart1(LJAL):
 
-    def __init__(self, graph, alpha=0.1):
+    def __init__(self, graph, alpha=0.2):
         super(LJALPart1, self).__init__(graph=graph, n_actions = 4, alpha = alpha)
         # Need global reward
         r = Rewards()
