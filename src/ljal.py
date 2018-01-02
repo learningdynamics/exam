@@ -7,7 +7,7 @@ from graph import *
 
 def BoltzmannAction(evs, temp=1):
     # Prevent overflow
-    temp = max(temp, 0.01)
+    # temp = max(temp, 0.001)
     cs = np.cumsum(np.exp(np.array(evs)/temp))
     cs = cs / cs[-1]
     rd = np.random.uniform()
