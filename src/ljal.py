@@ -4,6 +4,7 @@ import unittest
 import numpy as np
 import multiprocessing as mp
 from parmap import parmap
+import optimisation
 
 from graph import *
 
@@ -43,21 +44,23 @@ class LJAL(object):
         return 1.0
     
     def EVs(self, agent):
-        EV = np.zeros(self.n_actions)
+        # EV = np.zeros(self.n_actions)
         Sums = np.sum(self.Cs[agent], axis=1)
         Sums[Sums == 0] = 1
         Fs = self.Cs[agent] / Sums[:,None]
-        
-        it = np.nditer(self.Qs[agent], flags=['multi_index'])
-        while not it.finished:
-            action = it.multi_index[0]
-            actions = it.multi_index[1:]
-            
-            prob = np.prod([Fs[i, a]  for i,a in enumerate(actions) ])
-            EV[action] +=  it[0] * prob
-            it.iternext()
 
-        return EV
+        return optimisation.cython_EVs(self.n_actions, self.Qs[agent], Fs)
+        
+        # it = np.nditer(self.Qs[agent], flags=['multi_index'])
+        # while not it.finished:
+        #     action = it.multi_index[0]
+        #     actions = it.multi_index[1:]
+            
+        #     prob = np.prod([Fs[i, a]  for i,a in enumerate(actions) ])
+        #     EV[action] +=  it[0] * prob
+        #     it.iternext()
+
+        # return EV
         
     def one_step(self):
         self.actions = np.array([ BoltzmannAction(self.EVs(agent), temp = self.temperature())
