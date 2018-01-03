@@ -18,7 +18,7 @@ from ljal import LJAL, AverageR
 # JAL
 
 class Rewards(object):
-    vec = np.random.normal(0,50,4**5)
+    vec = np.random.normal(0,50,4**10)
     
     def __init__(self):
         pass
@@ -39,12 +39,17 @@ class Rewards(object):
 
 class LJALPart1(LJAL):
 
-    def __init__(self, graph, alpha=0.2):
-        super(LJALPart1, self).__init__(graph=graph, n_actions = 4, alpha = alpha)
+    def __init__(self, graph):
+        super(LJALPart1, self).__init__(graph=graph, n_actions = 4, optimistic=0.0)
         # Need global reward
         r = Rewards()
         self.rewards = np.reshape(r[0:self.n_actions**self.n_agents],
                                   [self.n_actions for i in range(0, self.n_agents)])
+
+    def alpha(self):
+        #return 1/np.log2(self.step+2)
+        return 0.8
+
 
     def temperature(self):
         ## As described p. 5

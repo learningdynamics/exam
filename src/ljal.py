@@ -10,8 +10,12 @@ from graph import *
 
 def BoltzmannAction(evs, temp=1):
     # Prevent overflow
-    temp = max(temp, 0.3)
-    cs = np.cumsum(np.exp(np.array(evs)/temp))
+    #temp = max(temp, 0.3)
+    cs = np.array(evs)/temp
+    cs -=  np.mean(cs)
+    if (cs > 700).any():
+        cs -= max(cs) + 650
+    cs = np.cumsum(np.exp(cs))
     cs = cs / cs[-1]
     rd = np.random.uniform()
     l = len(cs)
@@ -19,9 +23,8 @@ def BoltzmannAction(evs, temp=1):
 
 class LJAL(object):
 
-    def __init__(self, graph, n_actions = 4, alpha = 0.1, optimistic=0.0):
+    def __init__(self, graph, n_actions = 4, optimistic=0.0):
         self.n_actions = n_actions
-        self.alpha = alpha
         self.n_agents = len(graph.nodes)
         self.graph = graph
 
@@ -37,6 +40,9 @@ class LJAL(object):
         self.R = 0
         self.actions = np.zeros(self.n_agents)
 
+    def alpha(self):
+        return 0.1
+    
     def reward(self, actions):
         return 1.0
 
@@ -50,17 +56,7 @@ class LJAL(object):
         Fs = self.Cs[agent] / Sums[:,None]
 
         return optimisation.cython_EVs(self.n_actions, self.Qs[agent], Fs)
-        
-        # it = np.nditer(self.Qs[agent], flags=['multi_index'])
-        # while not it.finished:
-        #     action = it.multi_index[0]
-        #     actions = it.multi_index[1:]
-            
-        #     prob = np.prod([Fs[i, a]  for i,a in enumerate(actions) ])
-        #     EV[action] +=  it[0] * prob
-        #     it.iternext()
 
-        # return EV
         
     def one_step(self):
         self.actions = np.array([ BoltzmannAction(self.EVs(agent), temp = self.temperature())
@@ -72,7 +68,8 @@ class LJAL(object):
             selected_actions = [agent]
             selected_actions.extend(self.graph.successors(agent))
             selected_actions = tuple(self.actions[selected_actions])
-            self.Qs[agent][selected_actions] += self.alpha * (self.R - self.Qs[agent][selected_actions])
+            #self.Qs[agent][selected_actions] += self.alpha * (self.R - self.Qs[agent][selected_actions])
+            self.Qs[agent][selected_actions] += self.alpha() * (self.R - self.Qs[agent][selected_actions])
             
             for i, s in enumerate(self.graph.successors(agent)):
                 self.Cs[agent][i, self.actions[s]] += 1
