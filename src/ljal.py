@@ -13,7 +13,7 @@ def BoltzmannAction(evs, temp=1):
     #temp = max(temp, 0.3)
     cs = np.array(evs)/temp
     cs -=  np.mean(cs)
-    if (cs > 700).any():
+    if (cs > 650).any():
         cs -= max(cs) + 650
     cs = np.cumsum(np.exp(cs))
     cs = cs / cs[-1]
