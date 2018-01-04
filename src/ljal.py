@@ -30,7 +30,7 @@ class LJAL(object):
 
 
         self.step = 0
-        ## 
+        ##
         self.Qs = [ np.full([n_actions for i in range(0,len(n)+1)], optimistic)
                     for n in graph.nodes ]
         self.Cs = [ np.zeros((len(n), n_actions), dtype=np.int)
@@ -42,13 +42,13 @@ class LJAL(object):
 
     def alpha(self):
         return 0.1
-    
+
     def reward(self, actions):
         return 1.0
 
     def temperature(self):
         return 1.0
-    
+
     def EVs(self, agent):
         # EV = np.zeros(self.n_actions)
         Sums = np.sum(self.Cs[agent], axis=1)
@@ -61,7 +61,7 @@ class LJAL(object):
     def one_step(self):
         self.actions = np.array([ BoltzmannAction(self.EVs(agent), temp = self.temperature())
                                   for agent in range(0, self.n_agents) ])
-                                                  
+
         self.R = self.reward(self.actions)
 
         for agent in range(0, self.n_agents):
@@ -70,17 +70,20 @@ class LJAL(object):
             selected_actions = tuple(self.actions[selected_actions])
             #self.Qs[agent][selected_actions] += self.alpha * (self.R - self.Qs[agent][selected_actions])
             self.Qs[agent][selected_actions] += self.alpha() * (self.R - self.Qs[agent][selected_actions])
-            
+
             for i, s in enumerate(self.graph.successors(agent)):
                 self.Cs[agent][i, self.actions[s]] += 1
         
         self.step += 1
 
-    def n_steps(self, n):
-        result = np.empty(n)
-        for step in range(0, n):
-            self.one_step()
-            result[step] = self.R
+    def n_steps(self, n, n_samples=1):
+        result = np.zeros(n)
+        
+        for replicat in range(1, n_samples+1):
+            self.reinit()
+            for step in range(0, n):
+                self.one_step()
+                result[step] = (replicat-1)/replicat * result[step] + self.R / replicat
 
         return result
         
@@ -107,9 +110,9 @@ def AverageR(n, getR):
     #for i in range(2,n+1):
     #    resR += getR()
     #return resR / n
-    
-        
-    
+
+
+
 ####################
 ## TESTING
 class TestLJALMethods(unittest.TestCase):
@@ -139,6 +142,7 @@ class TestLJALMethods(unittest.TestCase):
         self.assertTrue(np.shape(l.Cs[1]) == (2,4))
 
     def test_one_step(self):
+        
         g = Graph(5)
         g.add_arc(1,2)
         l = LJAL(g)
@@ -147,10 +151,10 @@ class TestLJALMethods(unittest.TestCase):
         self.assertEqual(np.sum(l.Cs[1]), 2)
         #print(l)
 
-    def test_n_steps(self):        
+    def test_n_steps(self):
         g = Graph(5)
         l = LJAL(g)
-        R = l.n_steps(30)
+        R = l.n_steps(30, 10)
         self.assertEqual(len(R), 30)
         self.assertTrue(all([x == 1.0 for x in R]))
         #print(l)
