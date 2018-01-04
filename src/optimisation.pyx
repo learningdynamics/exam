@@ -16,15 +16,22 @@ def cython_EVs(int n_actions, np.ndarray Q, np.ndarray Fs):
             prob *= Fs[i, a]
             
         EV[action] +=  x * prob
-        
-    # it = np.nditer(Q, flags=['multi_index'])
-    # while not it.finished:
-    #     action = it.multi_index[0]
-    #     actions = it.multi_index[1:]
-            
-    #     prob = np.prod([Fs[i, a]  for i,a in enumerate(actions) ])
-    #     EV[action] +=  it[0] * prob
-    #     it.iternext()
 
     return EV
  
+def cython_BoltzmannAction(np.ndarray evs, double temp=1.0):
+    cdef np.ndarray[double] cs
+    cdef double rd
+    cdef int l
+    
+    # Prevent overflow
+    # temp = max(temp, 0.3)
+    cs = np.array(evs) / temp
+    cs -= np.mean(cs)
+    if (cs > 650).any():
+        cs -= max(cs) + 650
+    cs = np.cumsum(np.exp(cs))
+    cs = cs / cs[-1]
+    rd = np.random.uniform()
+    l = len(cs)
+    return min(l - np.sum(rd <= cs), l - 1)

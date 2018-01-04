@@ -1,6 +1,7 @@
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 
 from timeit import default_timer as timer
 from multiprocessing import Pool
@@ -17,7 +18,7 @@ from ljal import LJAL, AverageR
 # JAL
 
 class Rewards(object):
-    vec = np.random.normal(0, 50, 4 ** 10)
+    vec = np.random.normal(0, 50, 4 ** 5)
 
     def __init__(self):
         pass
@@ -56,44 +57,58 @@ class LJALPart1(LJAL):
         return self.rewards[tuple(actions)]
 
 
-n_samples = 100
-if len(sys.argv) > 1:
-    n_samples = int(sys.argv[1])
 
+parser = argparse.ArgumentParser(description='Part 1.')
+parser.add_argument('-n', dest='n_samples', type=int, default=100,
+                    help='number of samples (default: 100)')
+parser.add_argument('--plot', dest='plot_name', type=str, default="part1_plot.png",
+                    help='the filename of the plot (default: "part1_plot.png")')
+parser.add_argument('--latex', dest='table_name', type=str, default="part1_table.tex",
+                    help='the filename of the LaTeX table (default: "part1_table.tex")')
+
+args = parser.parse_args()
+    
 steps = 200
-index = [i for i in range(1, steps + 1)]
 
-print("Running IL")
-start = timer()
-IL = AverageR(n_samples, lambda: LJALPart1(graph=Graph(5)).n_steps(steps))
-end = timer()
-IL_delta = end - start
+full_graph = FullGraph(5)
+todo = [{ "msg": "Running IL", "name": "IL", "partners": 0,
+          "fun":lambda: LJALPart1(graph=Graph(5)).n_steps(steps)},
+        { "msg": "Running LJAL-2", "name": "LJAL-2", "partners": 2,
+          "fun": lambda: LJALPart1(graph=RandomGraph(5, 2)).n_steps(steps)},
+        { "msg":"Running LJAL-3", "name": "LJAL-3", "partners": 3,
+          "fun": lambda: LJALPart1(graph=RandomGraph(5, 3)).n_steps(steps)},
+        { "msg":"Running JAL", "name":"JAL", "partners": 4,
+          "fun": lambda: LJALPart1(graph=full_graph).n_steps(steps)}]
 
-print("Running LJAL-2")
-start = timer()
-LJAL_2 = AverageR(n_samples, lambda: LJALPart1(graph=RandomGraph(5, 2)).n_steps(steps))
-end = timer()
-LJAL_2_delta = end - start
+for t in todo:
+    print(t["msg"])
+    start = timer()
+    t["Rs"] = AverageR(args.n_samples, t["fun"])
+    end = timer()
+    t["time"] = end - start
 
-print("Running LJAL-3")
-start = timer()
-LJAL_3 = AverageR(n_samples, lambda: LJALPart1(graph=RandomGraph(5, 3)).n_steps(steps))
-end = timer()
-LJAL_3_delta = end - start
-
-print("Running JAL")
-start = timer()
-JAL = AverageR(n_samples, lambda: LJALPart1(graph=FullGraph(5)).n_steps(steps))
-end = timer()
-JAL_delta = end - start
-
-timing = np.array([IL_delta, LJAL_2_delta, LJAL_3_delta, JAL_delta]) / JAL_delta
-print(timing)
-print(timing*JAL_delta)
 
 print("Plotting")
+index = [i for i in range(1, steps + 1)]
 plt.ylim(-10, 120)
-plt.plot(index, IL, 'r', index, LJAL_2, 'b', index, LJAL_3, 'g', index, JAL, 'y')
+for t in todo:
+    plt.plot(index, t["Rs"])
+plt.legend([t["name"] for t in todo])
 plt.ylabel('R')
-plt.savefig('part1.png')
+plt.savefig(args.plot_name)
 # plt.show()
+
+
+row_format ="{:>10} & {:>15} & {:>15} & {:>16} \\\\\n"
+with open(args.table_name, 'w') as f:
+    f.write('\\begin{tabular}{lllr}\n')
+    f.write('\\toprule\n')
+    f.write(row_format.format("Learner", "Avg # Partners", "Speed", "Solution Quality"))
+    f.write('\\midrule\n')
+    for t in todo:
+        f.write( row_format.format(t["name"],
+                                   "${}$".format(t["partners"]),
+                                   "$\\times {:.1f}$".format(todo[-1]["time"] / t["time"]),
+                                   "${:.1f}$\\%".format(t["Rs"][-1]/todo[-1]["Rs"][-1] * 100) ) )
+    f.write('\\bottomrule\n')
+    f.write("\\end{tabular}\n")

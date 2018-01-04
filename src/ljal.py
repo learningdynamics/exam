@@ -3,23 +3,9 @@
 import unittest
 import numpy as np
 from parmap import parmap
-import optimisation
+from optimisation import (cython_BoltzmannAction, cython_EVs)
 
 from graph import *
-
-
-def BoltzmannAction(evs, temp=1):
-    # Prevent overflow
-    # temp = max(temp, 0.3)
-    cs = np.array(evs) / temp
-    cs -= np.mean(cs)
-    if (cs > 650).any():
-        cs -= max(cs) + 650
-    cs = np.cumsum(np.exp(cs))
-    cs = cs / cs[-1]
-    rd = np.random.uniform()
-    l = len(cs)
-    return min(l - np.sum(rd <= cs), l - 1)
 
 
 class LJAL(object):
@@ -54,11 +40,11 @@ class LJAL(object):
         Sums[Sums == 0] = 1
         Fs = self.Cs[agent] / Sums[:, None]
 
-        return optimisation.cython_EVs(self.n_actions, self.Qs[agent], Fs)
+        return cython_EVs(self.n_actions, self.Qs[agent], Fs)
 
     def one_step(self):
         temp = self.temperature()
-        self.actions = np.array([ BoltzmannAction(self.EVs(agent), temp = temp)
+        self.actions = np.array([ cython_BoltzmannAction(self.EVs(agent), temp = temp)
                                   for agent in range(0, self.n_agents) ])
 
         self.R = self.reward(self.actions)
@@ -97,26 +83,19 @@ Cs = {}
 
 
 def AverageR(n, getR):
-    def worker(i):
-        return getR()
-
-    res = parmap(worker, range(0, n))
+    res = parmap(lambda i:getR(), range(0, n))
     return np.average(res, axis=0)
-    # resR = getR()
-    # for i in range(2,n+1):
-    #    resR += getR()
-    # return resR / n
 
 
 ####################
 ## TESTING
 class TestLJALMethods(unittest.TestCase):
     def test_BoltzmannAction(self):
-        self.assertTrue(BoltzmannAction([100, 0, 0]) == 0)
-        self.assertTrue(BoltzmannAction([0, 100, 0, 0]) == 1)
-        self.assertTrue(BoltzmannAction([0, 0, 100, 0, 0]) == 2)
-        self.assertTrue(BoltzmannAction([0, 0, 0, 100]) == 3)
-        half = np.mean([BoltzmannAction([10, 10]) for i in range(0, 2000)])
+        self.assertTrue(cython_BoltzmannAction([100, 0, 0]) == 0)
+        self.assertTrue(cython_BoltzmannAction([0, 100, 0, 0]) == 1)
+        self.assertTrue(cython_BoltzmannAction([0, 0, 100, 0, 0]) == 2)
+        self.assertTrue(cython_BoltzmannAction([0, 0, 0, 100]) == 3)
+        half = np.mean([cython_BoltzmannAction([10, 10]) for i in range(0, 2000)])
         self.assertTrue(0.45 < half and half < 0.55)
 
     def test_EVs(self):
