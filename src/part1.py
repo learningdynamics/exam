@@ -1,5 +1,3 @@
-#! /usr/bin/python3
-
 import unittest
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,6 +9,7 @@ import sys
 from graph import (Graph, RandomGraph, FullGraph)
 from ljal import LJAL, AverageR
 
+
 ###
 # temperature = 1000 * 0.97^play
 # IL 
@@ -18,8 +17,8 @@ from ljal import LJAL, AverageR
 # JAL
 
 class Rewards(object):
-    vec = np.random.normal(0,50,4**10)
-    
+    vec = np.random.normal(0, 50, 4 ** 10)
+
     def __init__(self):
         pass
 
@@ -27,78 +26,74 @@ class Rewards(object):
         return len(Rewards.vec)
 
     def __getitem__(self, key):
-        if isinstance( key, slice ) :
+        if isinstance(key, slice):
             return [self[ii] for ii in range(*key.indices(len(self)))]
-        elif isinstance( key, int ):
+        elif isinstance(key, int):
             l = len(self)
             if key >= l:
-                Rewards.vec.extend(np.random.normal(0,50,key-l+1+100))
+                Rewards.vec.extend(np.random.normal(0, 50, key - l + 1 + 100))
 
         return Rewards.vec[key]
 
 
 class LJALPart1(LJAL):
-
     def __init__(self, graph):
-        super(LJALPart1, self).__init__(graph=graph, n_actions = 4, optimistic=0.0)
+        super(LJALPart1, self).__init__(graph=graph, n_actions=4, optimistic=0.0)
         # Need global reward
         r = Rewards()
-        self.rewards = np.reshape(r[0:self.n_actions**self.n_agents],
+        self.rewards = np.reshape(r[0:self.n_actions ** self.n_agents],
                                   [self.n_actions for i in range(0, self.n_agents)])
 
     def alpha(self):
-        #return 1/np.log2(self.step+2)
+        # return 1/np.log2(self.step+2)
         return 0.8
-
 
     def temperature(self):
         ## As described p. 5
-        return 1000.0 * 0.94**self.step
+        return 1000.0 * 0.94 ** self.step
 
     def reward(self, actions):
         return self.rewards[tuple(actions)]
 
 
-n_samples = 10
+n_samples = 100
 if len(sys.argv) > 1:
     n_samples = int(sys.argv[1])
 
 steps = 200
-index = [i for i in range(1, steps+1)]
+index = [i for i in range(1, steps + 1)]
 
 print("Running IL")
 start = timer()
-IL = AverageR(n_samples, lambda:LJALPart1(graph=Graph(5)).n_steps(steps))
+IL = AverageR(n_samples, lambda: LJALPart1(graph=Graph(5)).n_steps(steps))
 end = timer()
 IL_delta = end - start
 
 print("Running LJAL-2")
 start = timer()
-LJAL_2 = AverageR(n_samples, lambda:LJALPart1(graph=RandomGraph(5, 2)).n_steps(steps))
+LJAL_2 = AverageR(n_samples, lambda: LJALPart1(graph=RandomGraph(5, 2)).n_steps(steps))
 end = timer()
 LJAL_2_delta = end - start
 
-
 print("Running LJAL-3")
 start = timer()
-LJAL_3 = AverageR(n_samples, lambda:LJALPart1(graph=RandomGraph(5, 3)).n_steps(steps))
+LJAL_3 = AverageR(n_samples, lambda: LJALPart1(graph=RandomGraph(5, 3)).n_steps(steps))
 end = timer()
 LJAL_3_delta = end - start
 
 print("Running JAL")
 start = timer()
-JAL = AverageR(n_samples, lambda:LJALPart1(graph=FullGraph(5)).n_steps(steps))
+JAL = AverageR(n_samples, lambda: LJALPart1(graph=FullGraph(5)).n_steps(steps))
 end = timer()
 JAL_delta = end - start
 
-
-timing = np.array([IL_delta,  LJAL_2_delta, LJAL_3_delta, JAL_delta]) / JAL_delta
-print( timing )
-
+timing = np.array([IL_delta, LJAL_2_delta, LJAL_3_delta, JAL_delta]) / JAL_delta
+print(timing)
+print(timing*JAL_delta)
 
 print("Plotting")
 plt.ylim(-10, 120)
 plt.plot(index, IL, 'r', index, LJAL_2, 'b', index, LJAL_3, 'g', index, JAL, 'y')
 plt.ylabel('R')
 plt.savefig('part1.png')
-#plt.show()
+# plt.show()
