@@ -103,7 +103,7 @@ row_format ="{:>10} & {:>15} & {:>15} & {:>16} \\\\\n"
 with open(args.table_name, 'w') as f:
     f.write('\\begin{tabular}{lllr}\n')
     f.write('\\toprule\n')
-    f.write(row_format.format("Learner", "Avg # Partners", "Speed", "Solution Quality"))
+    f.write(row_format.format("Learner", "Avg \\# Partners", "Speed", "Solution Quality"))
     f.write('\\midrule\n')
     for t in todo:
         f.write( row_format.format(t["name"],
