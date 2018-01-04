@@ -26,6 +26,7 @@ class RandomGraph(Graph):
                 self.add_arc(n, d)
 
 
+
 class FullGraph(Graph):
     def __init__(self, n_nodes):
         super(FullGraph, self).__init__(n_nodes)

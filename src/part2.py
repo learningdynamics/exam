@@ -1,9 +1,15 @@
 from ljal import *
+import sys
+from timeit import default_timer as timer
+from multiprocessing import Pool
+import matplotlib.pyplot as plt
 
 class DCOPpart2(LJAL):
-    def __init__(self,graph):
-        super(DCOPpart2,self).__init__(graph=graph,n_actions=4)
+    def __init__(self, graph):
+        super(DCOPpart2, self).__init__(graph=graph, n_actions=4, optimistic=0.0)
+
         self.rewards = self._set_reward(self._set_weight_mat())
+
 
     def _set_weight_mat(self):
         # here we use the structure in the paper Fig 5
@@ -30,53 +36,96 @@ class DCOPpart2(LJAL):
                 reward_mat[j][i] = temp_mat
         return reward_mat
 
-    def one_step(self):
-        self.actions = np.array([BoltzmannAction(EVs(self.Qs[agent], self.Ns[agent]),
-                                                temp=self.temperature())
-                                for agent in range(0, self.n_agents)])
-        for agent1 in range(len(self.n_agents)):
-            for agent2 in range(agent1+1,len(self.n_agents)):
-                    # every agent play with each other
-                agent1_act = self.actions[agent1]
-                agent2_act = self.actions[agent2]
+    def reward(self, actions):
+        # the reward is the sum of the reward
+        s = 0
+        for i in range(self.n_agents-1):
+            for j in range(i+1,self.n_agents):
+                s += self.rewards[i][j][actions[i]][actions[j]]
+        return s
 
-                self.R = self.rewards[agent1][agent2][agent1_act][agent2_act]
-                # update the Q and Ns for agent1
-                x = agent1_act
-                y = self._y(agent1,self.actions)
+    def temperature(self):
+        return 1000* 0.94 ** self.step
 
-                self.Qs[agent1][x, y] += self.alpha * (self.R - self.Qs[agent1][x, y])
-                self.Ns[agent1][x, y] += 1
-
-                # update the Q and Ns for agent2
-                x = agent1_act
-                y = self._y(agent2, self.actions)
-
-                self.Qs[agent2][x, y] += self.alpha * (self.R - self.Qs[agent2][x, y])
-                self.Ns[agent2][x, y] += 1
+    def alpha(self):
+        return 0.5
 
 
 
+# set the graph
+# independent learners
+n_samples = 100
+if len(sys.argv) > 1:
+    n_samples = int(sys.argv[1])
+
+steps = 200
+index = [i for i in range(1, steps + 1)]
+
+print("Running IL")
+start = timer()
+IL = AverageR(n_samples, lambda: DCOPpart2(graph=Graph(7)).n_steps(steps))
+end = timer()
+IL_delta = end - start
+
+print("Running LJAL-1")
+start = timer()
+LJAL_1 = AverageR(n_samples, lambda: DCOPpart2(graph=RandomGraph(7, 2)).n_steps(steps))
+end = timer()
+LJAL_1_delta = end - start
+
+print("Running LJAL-2")
+LJAL2_graph = Graph(7)
+LJAL2_graph.add_arc(0,1)
+LJAL2_graph.add_arc(0,2)
+LJAL2_graph.add_arc(1,0)
+LJAL2_graph.add_arc(1,2)
+LJAL2_graph.add_arc(2,0)
+LJAL2_graph.add_arc(2,1)
+LJAL2_graph.add_arc(4,5)
+LJAL2_graph.add_arc(5,4)
+start = timer()
+LJAL_2 = AverageR(n_samples, lambda: DCOPpart2(graph=LJAL2_graph).n_steps(steps))
+end = timer()
+LJAL_2_delta = end - start
+
+print("Running LJAL-3")
+LJAL3_graph = Graph(7)
+LJAL3_graph.add_arc(0,1)
+LJAL3_graph.add_arc(0,2)
+LJAL3_graph.add_arc(1,0)
+LJAL3_graph.add_arc(1,2)
+LJAL3_graph.add_arc(2,0)
+LJAL3_graph.add_arc(2,1)
+LJAL3_graph.add_arc(4,5)
+LJAL3_graph.add_arc(5,4)
+LJAL3_graph.add_arc(0,4)
+LJAL3_graph.add_arc(4,0)
+start = timer()
+LJAL_3 = AverageR(n_samples, lambda: DCOPpart2(graph=LJAL3_graph).n_steps(steps))
+end = timer()
+LJAL_3_delta = end - start
+
+'''
+print("Running JAL")
+start = timer()
+JAL = AverageR(n_samples, lambda: DCOPpart2(graph=FullGraph(7)).n_steps(steps))
+end = timer()
+JAL_delta = end - start
+
+timing = np.array([IL_delta, LJAL_2_delta, LJAL_3_delta, JAL_delta]) / JAL_delta
+print(timing)
+print(timing*JAL_delta)
+'''
+print("Plotting")
+plt.ylim(-10, 400)
+plt.plot(index, IL, index, LJAL_1, index,LJAL_2, index, LJAL_3)
+plt.legend(['IL','LJAL_1',"LJAL_2",'LJAL_3'])
+plt.ylabel('R')
+plt.savefig('part2.png')
+# plt.show()
 
 
 
-a = Graph(7)
-a.add_arc(0,1)
-a.add_arc(0,2)
-a.add_arc(0,3)
-a.add_arc(4,5)
-a.add_arc(4,6)
-
-
-
-
-
-
-
-class TestDCOPMethod(unittest.TestCase):
-
-    def testSetReward(self):
-       pass
 
 
 
