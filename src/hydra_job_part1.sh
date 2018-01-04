@@ -1,4 +1,4 @@
-#!/bin/csh
+#! /bin/csh
 
 #PBS -l nodes=1:ppn=16
 #PBS -l walltime=00:10:00
