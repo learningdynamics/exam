@@ -2,7 +2,6 @@
 
 import unittest
 import numpy as np
-import multiprocessing as mp
 from parmap import parmap
 import optimisation
 
@@ -59,7 +58,8 @@ class LJAL(object):
 
         
     def one_step(self):
-        self.actions = np.array([ BoltzmannAction(self.EVs(agent), temp = self.temperature())
+        temp = self.temperature()
+        self.actions = np.array([ BoltzmannAction(self.EVs(agent), temp = temp)
                                   for agent in range(0, self.n_agents) ])
                                                   
         self.R = self.reward(self.actions)
@@ -68,7 +68,7 @@ class LJAL(object):
             selected_actions = [agent]
             selected_actions.extend(self.graph.successors(agent))
             selected_actions = tuple(self.actions[selected_actions])
-            #self.Qs[agent][selected_actions] += self.alpha * (self.R - self.Qs[agent][selected_actions])
+
             self.Qs[agent][selected_actions] += self.alpha() * (self.R - self.Qs[agent][selected_actions])
             
             for i, s in enumerate(self.graph.successors(agent)):
