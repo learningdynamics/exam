@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
-import matplotlib.pyplot as plt
 import argparse
+import pickle
 
 from timeit import default_timer as timer
 from multiprocessing import Pool
@@ -61,10 +61,8 @@ class LJALPart1(LJAL):
 parser = argparse.ArgumentParser(description='Part 1.')
 parser.add_argument('-n', dest='n_samples', type=int, default=100,
                     help='number of samples (default: 100)')
-parser.add_argument('--plot', dest='plot_name', type=str, default="part1_plot.png",
-                    help='the filename of the plot (default: "part1_plot.png")')
-parser.add_argument('--latex', dest='table_name', type=str, default="part1_table.tex",
-                    help='the filename of the LaTeX table (default: "part1_table.tex")')
+parser.add_argument('--save', dest='save_name', type=str, default="part1.pickle",
+                    help='the filename of the plot (default: "part1.pickle")')
 
 args = parser.parse_args()
     
@@ -86,29 +84,10 @@ for t in todo:
     t["Rs"] = AverageR(args.n_samples, t["fun"])
     end = timer()
     t["time"] = end - start
+    # clean for pickling
+    t["fun"] = None
 
+with open(args.save_name, 'wb') as f:
+    # Pickle the 'data' dictionary using the highest protocol available.
+    pickle.dump(todo, f, pickle.HIGHEST_PROTOCOL)
 
-print("Plotting")
-index = [i for i in range(1, steps + 1)]
-plt.ylim(-10, 120)
-for t in todo:
-    plt.plot(index, t["Rs"])
-plt.legend([t["name"] for t in todo])
-plt.ylabel('R')
-plt.savefig(args.plot_name)
-# plt.show()
-
-
-row_format ="{:>10} & {:>15} & {:>15} & {:>16} \\\\\n"
-with open(args.table_name, 'w') as f:
-    f.write('\\begin{tabular}{lllr}\n')
-    f.write('\\toprule\n')
-    f.write(row_format.format("Learner", "Avg \\# Partners", "Speed", "Solution Quality"))
-    f.write('\\midrule\n')
-    for t in todo:
-        f.write( row_format.format(t["name"],
-                                   "${}$".format(t["partners"]),
-                                   "$\\times {:.1f}$".format(todo[-1]["time"] / t["time"]),
-                                   "${:.1f}$\\%".format(t["Rs"][-1]/todo[-1]["Rs"][-1] * 100) ) )
-    f.write('\\bottomrule\n')
-    f.write("\\end{tabular}\n")
