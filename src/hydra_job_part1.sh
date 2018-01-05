@@ -6,7 +6,7 @@
 #PBS -o myjob.out
 #PBS -N Part1_Job
 
-N_SAMPLES=100
+N_SAMPLES=1000
 
 echo "Running job on $HOST - " `date`
 
