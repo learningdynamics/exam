@@ -6,12 +6,14 @@
 #PBS -o myjob.out
 #PBS -N Part1_Job
 
+N_SAMPLES=100
+
 echo "Running job on $HOST - " `date`
 
 module load Python matplotlib
 
 cd $WORKDIR
 
-python3 $HOME/git/exam/src/part1.py -n 10 --plot $WORKDIR/part1_plot.png --latex $WORKDIR/part1_latex.tex
+python3 $HOME/git/exam/src/part1.py -n 1000 --plot $WORKDIR/part1_plot_${N_SAMPLES}.png --latex $WORKDIR/part1_latex_${N_SAMPLES}.tex
 
 echo "Done"
