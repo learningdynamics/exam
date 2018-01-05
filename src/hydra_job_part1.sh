@@ -12,6 +12,6 @@ module load Python matplotlib
 
 cd $WORKDIR
 
-python3 $HOME/git/exam/src/ -n 10 --plot $WORKDIR/part1_plot.png --latex $WORKDIR/part1_latex.tex
+python3 $HOME/git/exam/src/part1.py -n 10 --plot $WORKDIR/part1_plot.png --latex $WORKDIR/part1_latex.tex
 
 echo "Done"
