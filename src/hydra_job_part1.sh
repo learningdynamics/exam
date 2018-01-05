@@ -10,6 +10,8 @@ echo "Running job on $HOST - " `date`
 
 module load Python matplotlib
 
+cd $PBS_O_WORKDIR
+
 python3 $HOME/git/exam/src/ -n 10 --plot $WORKDIR/part1_plot.png --latex $WORKDIR/part1_latex.tex
 
 echo "Done"
