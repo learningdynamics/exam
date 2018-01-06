@@ -1,11 +1,11 @@
 #!/bin/bash -l
 
-#PBS -t 1-100
+#PBS -t 1-5
 #PBS -l nodes=1:ppn=4
-#PBS -l walltime=00:08:00
-#PBS -e part1/myjob.err
-#PBS -o part1/myjob.out
-#PBS -N LD_Part1_Job_array
+#PBS -l walltime=00:20:00
+#PBS -e part2/myjob.err
+#PBS -o part2/myjob.out
+#PBS -N LD_Part2_Job_array
 
 N_SAMPLES=100
 N_SAMPLES_JAL=5
