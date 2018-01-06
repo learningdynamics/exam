@@ -1,4 +1,4 @@
-PART1_N_SAMPLES=10
+PART1_PICKLE_GLOB="pickle/part1/*.pickle"
 
 .PHONY: main clean dist
 
@@ -13,9 +13,8 @@ report.bbl:	report.tex bib.bib
 	pdflatex $<
 	bibtex report.aux
 
-part1_plot.png:	src/*.py src/*.pyx src/Makefile
-	$(MAKE) -C src/
-	python3 src/part1.py -n $(PART1_N_SAMPLES)
+part1_plot.png:	src/*.py
+	python3 src/plots.py --files 'pickle/part1/*.pickle'
 
 dist:
 	tar cvzf report.tar.gz report.tex alifexi.sty bib.bib
