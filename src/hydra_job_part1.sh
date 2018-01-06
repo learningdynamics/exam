@@ -2,19 +2,22 @@
 
 #PBS -t 1-10
 #PBS -l nodes=1:ppn=4
-#PBS -l walltime=00:01:00
-#PBS -e myjob.err
-#PBS -o myjob.out
-#PBS -N Part1_Job
+#PBS -l walltime=00:02:00
+#PBS -e part1/myjob.err
+#PBS -o part1/myjob.out
+#PBS -N LD_Part1_Job_array
 
 N_SAMPLES=100
+DEST_DIR="$HOME/part1"
 
 echo "Running job on $HOST - " `date`
 
 module load Python matplotlib
 
-cd $WORKDIR
 
-python3 $HOME/git/exam/src/part1.py -n $N_SAMPLES --save "$WORKDIR/part1-${N_SAMPLES}-${PBS_ARRAYID}.pickle"
+cd $HOME
+mkdir -p "${DEST_DIR}"
+
+python3 $HOME/git/exam/src/part1.py -n $N_SAMPLES --save "${DEST_DIR}/part1-${N_SAMPLES}-${PBS_ARRAYID}.pickle"
 
 echo "Done"
