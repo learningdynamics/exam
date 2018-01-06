@@ -2,7 +2,7 @@
 
 #PBS -t 1-100
 #PBS -l nodes=1:ppn=4
-#PBS -l walltime=00:20:00
+#PBS -l walltime=00:08:00
 #PBS -e part2/myjob.err
 #PBS -o part2/myjob.out
 #PBS -N LD_Part2_Job_array
