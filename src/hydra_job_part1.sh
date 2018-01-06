@@ -1,8 +1,8 @@
 #!/bin/bash -l
 
 #PBS -t 1-10
-#PBS -l nodes=1:ppn=8
-#PBS -l walltime=00:02:00
+#PBS -l nodes=1:ppn=4
+#PBS -l walltime=00:04:00
 #PBS -e part1/myjob.err
 #PBS -o part1/myjob.out
 #PBS -N LD_Part1_Job_array
