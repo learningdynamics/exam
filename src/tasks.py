@@ -15,7 +15,7 @@ def run(todo, filename):
         start = timer()
         t["Rs"] = AverageR(t["n_samples"], t["fun"])
         end = timer()
-        t["time"] = (end - start) / t["n_samples"]
+        t["time"] = end - start
         # clean for pickling
         t["fun"] = None
 
