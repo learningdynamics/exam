@@ -13,10 +13,10 @@ report.bbl:	report.tex bib.bib
 	pdflatex $<
 	bibtex report.aux
 
-part1_plot.png:	src/*.py
+part1_plot.png:	src/*.py pickle/part1/*.pickle
 	python3 src/plots.py --files 'pickle/part1/*.pickle'
 
-part2_plot.png:	src/*.py
+part2_plot.png:	src/*.py pickle/part2/*.pickle
 	python3 src/plots.py --files 'pickle/part2/*.pickle' --plot part2_plot.png --latex part2_table.tex
 
 dist:
