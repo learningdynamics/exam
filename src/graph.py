@@ -18,6 +18,10 @@ class Graph(object):
             self.nodes[src][dst] = weigth
             self.succ_cache_valid[src] = False
 
+    def add_arcs(self, *args):
+        for arc in args:
+            self.add_arc(*arc)
+        
     def successors(self, node):
         if self.succ_cache_valid[node]:
             return self.succ_cache[node]
@@ -67,6 +71,11 @@ class TestGraphMethods(unittest.TestCase):
         g = Graph(10)
         g.add_arc(1, 2)
         g.add_arc(1, 5)
+        self.assertEqual([2, 5], g.successors(1))
+
+    def test_add_arcs(self):
+        g = Graph(10)
+        g.add_arcs((1, 2), (1, 5))
         self.assertEqual([2, 5], g.successors(1))
 
     def test_random_graph(self):

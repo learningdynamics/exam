@@ -9,7 +9,7 @@ import sys
 
 from graph import (Graph, RandomGraph, FullGraph)
 from ljal import LJAL, AverageR
-
+import tasks
 
 ###
 # temperature = 1000 * 0.97^play
@@ -17,32 +17,11 @@ from ljal import LJAL, AverageR
 # Randomly generated CG out edge degrees: 2 and 3
 # JAL
 
-class Rewards(object):
-    vec = np.random.normal(0, 50, 4 ** 5)
-
-    def __init__(self):
-        pass
-
-    def __len__(self):
-        return len(Rewards.vec)
-
-    def __getitem__(self, key):
-        if isinstance(key, slice):
-            return [self[ii] for ii in range(*key.indices(len(self)))]
-        elif isinstance(key, int):
-            l = len(self)
-            if key >= l:
-                Rewards.vec.extend(np.random.normal(0, 50, key - l + 1 + 100))
-
-        return Rewards.vec[key]
-
 
 class LJALPart1(LJAL):
     def __init__(self, graph):
         super(LJALPart1, self).__init__(graph=graph, n_actions=4, optimistic=0.0)
-        # Need global reward
-        r = Rewards()
-        self.rewards = np.reshape(r[0:self.n_actions ** self.n_agents],
+        self.rewards = np.reshape(np.random.normal(0, 50, self.n_actions ** self.n_agents),
                                   [self.n_actions for i in range(0, self.n_agents)])
 
     def alpha(self):
@@ -69,25 +48,13 @@ args = parser.parse_args()
 steps = 200
 
 full_graph = FullGraph(5)
-todo = [{ "msg": "Running IL", "name": "IL", "partners": 0,
+todo = [{ "msg": "Running IL", "name": "IL", "partners": 0, "n_samples": args.n_samples,
           "fun":lambda: LJALPart1(graph=Graph(5)).n_steps(steps)},
-        { "msg": "Running LJAL-2", "name": "LJAL-2", "partners": 2,
+        { "msg": "Running LJAL-2", "name": "LJAL-2", "partners": 2, "n_samples": args.n_samples,
           "fun": lambda: LJALPart1(graph=RandomGraph(5, 2)).n_steps(steps)},
-        { "msg":"Running LJAL-3", "name": "LJAL-3", "partners": 3,
+        { "msg":"Running LJAL-3", "name": "LJAL-3", "partners": 3, "n_samples": args.n_samples,
           "fun": lambda: LJALPart1(graph=RandomGraph(5, 3)).n_steps(steps)},
-        { "msg":"Running JAL", "name":"JAL", "partners": 4,
+        { "msg":"Running JAL", "name":"JAL", "partners": 4, "n_samples": args.n_samples,
           "fun": lambda: LJALPart1(graph=full_graph).n_steps(steps)}]
 
-for t in todo:
-    print(t["msg"])
-    start = timer()
-    t["Rs"] = AverageR(args.n_samples, t["fun"])
-    end = timer()
-    t["time"] = end - start
-    # clean for pickling
-    t["fun"] = None
-
-with open(args.save_name, 'wb') as f:
-    # Pickle the 'data' dictionary using the highest protocol available.
-    pickle.dump(todo, f, pickle.HIGHEST_PROTOCOL)
-
+tasks.run(todo, args.save_name)

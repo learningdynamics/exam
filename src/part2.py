@@ -3,6 +3,10 @@ import sys
 from timeit import default_timer as timer
 from multiprocessing import Pool
 import matplotlib.pyplot as plt
+import tasks
+import argparse
+
+
 
 class DCOPpart2(LJAL):
     def __init__(self, graph):
@@ -13,7 +17,7 @@ class DCOPpart2(LJAL):
 
     def _set_weight_mat(self):
         # here we use the structure in the paper Fig 5
-        weight_mat = np.zeros([self.n_agents,self.n_agents])+0.1
+        weight_mat = np.full([self.n_agents,self.n_agents], 0.1)
         # constriants for (1,2),(1,3),(2,3), (5,6) are important
         # the matrix are symmetric, we use the half triangular
         for (i,j) in [(0,1),(0,2),(1,2),(4,5)]:
@@ -51,81 +55,36 @@ class DCOPpart2(LJAL):
         return 0.5
 
 
+parser = argparse.ArgumentParser(description='Part 2.')
+parser.add_argument('-n', dest='n_samples', type=int, default=100,
+                    help='number of samples (default: 100)')
+parser.add_argument('-njal', dest='n_jal_samples', type=int, default=10,
+                    help='number of samples for JAL (default: 10)')
+parser.add_argument('--save', dest='save_name', type=str, default="part2.pickle",
+                    help='the filename of the plot (default: "part2.pickle")')
 
-# set the graph
-# independent learners
-n_samples = 100
-if len(sys.argv) > 1:
-    n_samples = int(sys.argv[1])
-
+args = parser.parse_args()
+    
 steps = 200
-index = [i for i in range(1, steps + 1)]
 
-print("Running IL")
-start = timer()
-IL = AverageR(n_samples, lambda: DCOPpart2(graph=Graph(7)).n_steps(steps))
-end = timer()
-IL_delta = end - start
-
-print("Running LJAL-1")
-start = timer()
-LJAL_1 = AverageR(n_samples, lambda: DCOPpart2(graph=RandomGraph(7, 2)).n_steps(steps))
-end = timer()
-LJAL_1_delta = end - start
-
-print("Running LJAL-2")
 LJAL2_graph = Graph(7)
-LJAL2_graph.add_arc(0,1)
-LJAL2_graph.add_arc(0,2)
-LJAL2_graph.add_arc(1,0)
-LJAL2_graph.add_arc(1,2)
-LJAL2_graph.add_arc(2,0)
-LJAL2_graph.add_arc(2,1)
-LJAL2_graph.add_arc(4,5)
-LJAL2_graph.add_arc(5,4)
-start = timer()
-LJAL_2 = AverageR(n_samples, lambda: DCOPpart2(graph=LJAL2_graph).n_steps(steps))
-end = timer()
-LJAL_2_delta = end - start
-
-print("Running LJAL-3")
+LJAL2_graph.add_arcs((0,1), (0,2), (1,0), (1,2), (2,0), (2,1), (4,5), (5,4))
 LJAL3_graph = Graph(7)
-LJAL3_graph.add_arc(0,1)
-LJAL3_graph.add_arc(0,2)
-LJAL3_graph.add_arc(1,0)
-LJAL3_graph.add_arc(1,2)
-LJAL3_graph.add_arc(2,0)
-LJAL3_graph.add_arc(2,1)
-LJAL3_graph.add_arc(4,5)
-LJAL3_graph.add_arc(5,4)
-LJAL3_graph.add_arc(0,4)
-LJAL3_graph.add_arc(4,0)
-start = timer()
-LJAL_3 = AverageR(n_samples, lambda: DCOPpart2(graph=LJAL3_graph).n_steps(steps))
-end = timer()
-LJAL_3_delta = end - start
-
-'''
-print("Running JAL")
-start = timer()
-JAL = AverageR(n_samples, lambda: DCOPpart2(graph=FullGraph(7)).n_steps(steps))
-end = timer()
-JAL_delta = end - start
-
-timing = np.array([IL_delta, LJAL_2_delta, LJAL_3_delta, JAL_delta]) / JAL_delta
-print(timing)
-print(timing*JAL_delta)
-'''
-print("Plotting")
-plt.ylim(-10, 400)
-plt.plot(index, IL, index, LJAL_1, index,LJAL_2, index, LJAL_3)
-plt.legend(['IL','LJAL_1',"LJAL_2",'LJAL_3'])
-plt.ylabel('R')
-plt.savefig('part2.png')
-# plt.show()
+LJAL3_graph.add_arcs((0,1),(0,2),(1,0),(1,2),(2,0),(2,1),(4,5),(5,4),(0,4),(4,0))
+full_graph = FullGraph(7)
+todo = [{ "msg": "Running IL", "name": "IL", "partners": 0, "n_samples": args.n_samples,
+          "fun":lambda:  DCOPpart2(graph=Graph(7)).n_steps(steps)},
+        { "msg": "Running LJAL-1", "name": "LJAL-1", "partners": 2, "n_samples": args.n_samples,
+          "fun": lambda: DCOPpart2(graph=RandomGraph(7, 2)).n_steps(steps)},
+        { "msg":"Running LJAL-2", "name": "LJAL-2", "partners": 1.14, "n_samples": args.n_samples,
+          "fun": lambda: DCOPpart2(graph=LJAL2_graph).n_steps(steps)},
+        { "msg":"Running LJAL-3", "name": "LJAL-3", "partners": 1.43, "n_samples": args.n_samples,
+          "fun": lambda: DCOPpart2(graph=LJAL3_graph).n_steps(steps)},
+        { "msg":"Running JAL", "name":"JAL", "partners": 6, "n_samples": args.n_jal_samples,
+          "fun": lambda: DCOPpart2(graph=full_graph).n_steps(steps)}]
 
 
-
+tasks.run(todo, args.save_name)
 
 
 

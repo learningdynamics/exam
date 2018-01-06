@@ -38,7 +38,7 @@ steps = len(todo[0]["Rs"])
     
 print("Plotting")
 index = [i for i in range(1, steps + 1)]
-plt.ylim(-10, 120)
+#plt.ylim(-10, 120)
 for t in todo:
     plt.plot(index, t["Rs"])
 plt.legend([t["name"] for t in todo])
