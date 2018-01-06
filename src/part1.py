@@ -26,7 +26,7 @@ class LJALPart1(LJAL):
 
     def alpha(self):
         # return 1/np.log2(self.step+2)
-        return 0.8
+        return 0.5
 
     def temperature(self):
         ## As described p. 5
