@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-#PBS -t 1-10
+#PBS -t 1-100
 #PBS -l nodes=1:ppn=4
 #PBS -l walltime=00:04:00
 #PBS -e part1/myjob.err
