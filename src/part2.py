@@ -68,9 +68,11 @@ args = parser.parse_args()
 steps = 200
 
 LJAL2_graph = Graph(7)
-LJAL2_graph.add_arcs((0,1), (0,2), (1,0), (1,2), (2,0), (2,1), (4,5), (5,4))
+LJAL2_graph.add_arcs((0,1),(0,2),(1,0),(1,2),(2,0),(2,1),(4,5),(5,4))
 LJAL3_graph = Graph(7)
 LJAL3_graph.add_arcs((0,1),(0,2),(1,0),(1,2),(2,0),(2,1),(4,5),(5,4),(0,4),(4,0))
+LJAL4_graph = Graph(7)
+LJAL4_graph.add_arcs((0,1),(0,2),(1,0),(1,2),(2,0),(2,1),(4,5),(5,4),(3,6),(6,3))
 full_graph = FullGraph(7)
 todo = [{ "msg": "Running IL", "name": "IL", "partners": 0, "n_samples": args.n_samples,
           "fun":lambda:  DCOPpart2(graph=Graph(7)).n_steps(steps)},
@@ -80,6 +82,8 @@ todo = [{ "msg": "Running IL", "name": "IL", "partners": 0, "n_samples": args.n_
           "fun": lambda: DCOPpart2(graph=LJAL2_graph).n_steps(steps)},
         { "msg":"Running LJAL-3", "name": "LJAL-3", "partners": 1.43, "n_samples": args.n_samples,
           "fun": lambda: DCOPpart2(graph=LJAL3_graph).n_steps(steps)},
+        { "msg":"Running LJAL-4", "name": "LJAL-4", "partners": 1.43, "n_samples": args.n_samples,
+          "fun": lambda: DCOPpart2(graph=LJAL4_graph).n_steps(steps)},
         { "msg":"Running JAL", "name":"JAL", "partners": 6, "n_samples": args.n_jal_samples,
           "fun": lambda: DCOPpart2(graph=full_graph).n_steps(steps)}]
 
