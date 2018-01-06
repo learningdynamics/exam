@@ -27,12 +27,18 @@ for fn in files:
         new_todo = pickle.load(f)
         if todo is None:
             todo = new_todo
+            for i in range(len(new_todo)):
+                todo[i]["Rs"] *= new_todo[i]["n_samples"]
         else:
             for i in range(len(new_todo)):
-                todo[i]["Rs"] +=  new_todo[i]["Rs"]
+                n_samples = new_todo[i]["n_samples"]
+                todo[i]["Rs"] +=  new_todo[i]["Rs"] * n_samples
+                todo[i]["time"] +=  new_todo[i]["time"] * n_samples
+                todo[i]["n_samples"] += n_samples
 
 for t in todo:
-     t["Rs"] /= len(files)
+    t["Rs"] /= t["n_samples"]
+    t["time"] /= t["n_samples"]
                 
 steps = len(todo[0]["Rs"])
     
