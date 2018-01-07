@@ -8,6 +8,23 @@ import pickle
 from glob import glob
 from math import sqrt
 
+## Shitty COPY/PASTE programming duplicate in part3.py
+def actionsToEdges(actions, binary, n_agents=7):
+    s = set()
+    if binary:
+        for i, a in enumerate(actions):
+            a1 = a // n_agents
+            a2 =  a % n_agents
+            if (i != a1):
+                s.add((i,a1))
+            if (i != a2):
+                s.add((i,a2))
+    else:
+        for i, a in enumerate(actions):
+            if (i != a):
+                s.add((i,a))
+    return s
+
 parser = argparse.ArgumentParser(description='Plots. Tables.')
 parser.add_argument('--files', dest='glob', type=str, default="./*.pickle",
                     help='the filename unix glob (default: "./*.pickle")')
@@ -31,6 +48,9 @@ for fn in files:
             for i in range(len(new_todo)):
                 todo[i]["moment"] = new_todo[i]["n_samples"]*(new_todo[i]["Rs"][-1]**2)
                 todo[i]["Rs"] *= new_todo[i]["n_samples"]
+                if "graph" in new_todo[i]:
+                    todo[i]["partners"] = new_todo[i]["n_samples"]*len(
+                        actionsToEdges(new_todo[i]["graph"], (i == 1))) / 7
         else:
             for i in range(len(new_todo)):
                 n_samples = new_todo[i]["n_samples"]
@@ -38,6 +58,10 @@ for fn in files:
                 todo[i]["time"] +=  new_todo[i]["time"] * n_samples
                 todo[i]["n_samples"] += n_samples
                 todo[i]["moment"] += new_todo[i]["n_samples"]*(new_todo[i]["Rs"][-1]**2)
+                if "graph" in new_todo[i]:
+                    ## shitty test
+                    todo[i]["partners"] += new_todo[i]["n_samples"] * len(
+                        actionsToEdges(new_todo[i]["graph"], (i == 1))) /7
 
 
 for t in todo:
@@ -46,6 +70,8 @@ for t in todo:
     t["moment"] /= t["n_samples"]
     t["std"] = sqrt(t["moment"] - t["Rs"][-1]**2)
     t["SE"] = t["std"] / sqrt(t["n_samples"])
+    if "graph" in t:
+        t["partners"] /= t["n_samples"]
 
 
                 
@@ -71,9 +97,9 @@ with open(args.table_name, 'w') as f:
     f.write('\\midrule\n')
     for t in todo:
         f.write( row_format.format(t["name"],
-                                   "${}$".format(t["partners"]),
+                                   "${:.2f}$".format(t["partners"]),
                                    "$\\times {:.1f}$".format(todo[-1]["time"] / t["time"]),
                                    "${:.1f}$\\%".format(t["Rs"][-1]/todo[-1]["Rs"][-1] * 100),
-                                   "$\pm{:.2f}$".format(1.96 * t["SE"]) ))
+                                   "${:.2f}\pm{:.2f}$".format(t["Rs"][-1], 1.96 * t["SE"]) ))
     f.write('\\bottomrule\n')
     f.write("\\end{tabular}\n")

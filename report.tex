@@ -13,7 +13,7 @@
 \usepackage{algpseudocode}
 \usepackage{algorithm}
 
-\title{Local Coordination in Online Distributed Constraint Optimization Problems \citep{Brys2012} \\ \large Learning dynamics (INFO-F-409)}
+\title{Reproducing the result of the paper: ``Local Coordination in Online Distributed Constraint Optimization Problems'' \citep{Brys2012} \\ \large Learning dynamics (INFO-F-409)}
 \author{Leon Babin$^1$, Yanfang Guo$^2$, Anthony Piron$^1$ \and Wenjia Wang$^2$ \\
 \mbox{}\\
 $^1$Master in Bio-informatics and Modelling, Université Libre de Bruxelles \\
@@ -50,7 +50,7 @@ $^2$Vrije Universiteit Brussel}
     \State \hspace{1cm}$\alpha * (R - node.Q[sel.actions])$
     \State $node.N[sel.actions]\mathrel{+}\gets 1$
     \EndFor
-    \Return $R$
+    \State \Return $R$
     \EndFunction
     \State
     \ForAll{t in MaxTime}
