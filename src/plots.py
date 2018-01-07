@@ -75,13 +75,17 @@ for t in todo:
 
 
                 
-steps = len(todo[0]["Rs"])
-    
 print("Plotting")
-index = [i for i in range(1, steps + 1)]
-#plt.ylim(-10, 120)
+
 for t in todo:
-    plt.plot(index, t["Rs"])
+    points = t["Rs"]
+    if t["SE"] > 4.0:
+        N=100
+        points = np.convolve(t["Rs"], np.ones((N,))/N, mode='valid')
+        print(len(points))
+    steps = len(points)
+    index = [i for i in range(1, steps + 1)]
+    plt.plot(index, points)
 plt.legend([t["name"] for t in todo])
 plt.ylabel('R')
 plt.savefig(args.plot_name)
